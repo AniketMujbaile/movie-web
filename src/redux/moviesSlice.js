@@ -1,34 +1,43 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-// Example API URL
+// API configuration
 const API_KEY = 'c45a857c193f6302f2b5061c3b85e743';
 const API_URL = 'https://api.themoviedb.org/3';
 
-// Thunk to fetch popular movies
+// Thunk to fetch popular movies with pagination
 export const fetchPopularMovies = createAsyncThunk(
   'movies/fetchPopularMovies',
-  async () => {
-    const response = await axios.get(`${API_URL}/movie/popular?api_key=${API_KEY}`);
-    return response.data.results;
+  async ({ page }) => {
+    const response = await axios.get(`${API_URL}/movie/popular?api_key=${API_KEY}&page=${page}`);
+    return {
+      results: response.data.results,
+      totalPages: response.data.total_pages,
+    };
   }
 );
 
-// Thunk to fetch top-rated movies
+// Thunk to fetch top-rated movies with pagination
 export const fetchTopRatedMovies = createAsyncThunk(
   'movies/fetchTopRatedMovies',
-  async () => {
-    const response = await axios.get(`${API_URL}/movie/top_rated?api_key=${API_KEY}`);
-    return response.data.results;
+  async ({ page }) => {
+    const response = await axios.get(`${API_URL}/movie/top_rated?api_key=${API_KEY}&page=${page}`);
+    return {
+      results: response.data.results,
+      totalPages: response.data.total_pages,
+    };
   }
 );
 
-// Thunk to fetch upcoming movies
+// Thunk to fetch upcoming movies with pagination
 export const fetchUpcomingMovies = createAsyncThunk(
   'movies/fetchUpcomingMovies',
-  async () => {
-    const response = await axios.get(`${API_URL}/movie/upcoming?api_key=${API_KEY}`);
-    return response.data.results;
+  async ({ page }) => {
+    const response = await axios.get(`${API_URL}/movie/upcoming?api_key=${API_KEY}&page=${page}`);
+    return {
+      results: response.data.results,
+      totalPages: response.data.total_pages,
+    };
   }
 );
 
@@ -44,7 +53,7 @@ export const searchMovies = createAsyncThunk(
   }
 );
 
-// Thunk to fetch movie details
+// Thunk to fetch movie details by movie ID
 export const fetchMovieDetails = createAsyncThunk(
   'movies/fetchMovieDetails',
   async (movieId) => {
@@ -53,7 +62,7 @@ export const fetchMovieDetails = createAsyncThunk(
   }
 );
 
-// Thunk to fetch movie cast
+// Thunk to fetch movie cast by movie ID
 export const fetchMovieCast = createAsyncThunk(
   'movies/fetchMovieCast',
   async (movieId) => {
@@ -73,7 +82,7 @@ const moviesSlice = createSlice({
     totalPages: 0,
     movieDetails: null,
     movieCast: [],
-    status: 'idle', 
+    status: 'idle', // idle | loading | succeeded | failed
     error: null,
   },
   reducers: {
@@ -90,7 +99,8 @@ const moviesSlice = createSlice({
       })
       .addCase(fetchPopularMovies.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.popular = action.payload;
+        state.popular = action.payload.results;
+        state.totalPages = action.payload.totalPages;
       })
       .addCase(fetchPopularMovies.rejected, (state, action) => {
         state.status = 'failed';
@@ -103,7 +113,8 @@ const moviesSlice = createSlice({
       })
       .addCase(fetchTopRatedMovies.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.topRated = action.payload;
+        state.topRated = action.payload.results;
+        state.totalPages = action.payload.totalPages;
       })
       .addCase(fetchTopRatedMovies.rejected, (state, action) => {
         state.status = 'failed';
@@ -116,7 +127,8 @@ const moviesSlice = createSlice({
       })
       .addCase(fetchUpcomingMovies.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.upcoming = action.payload;
+        state.upcoming = action.payload.results;
+        state.totalPages = action.payload.totalPages;
       })
       .addCase(fetchUpcomingMovies.rejected, (state, action) => {
         state.status = 'failed';
@@ -165,11 +177,10 @@ const moviesSlice = createSlice({
   }
 });
 
-// Exporting the action for clearing searched movies
+// Export the action to clear searched movies
 export const { clearSearchedMovies } = moviesSlice.actions;
 
 // Export the reducer as default
 export default moviesSlice.reducer;
-
 
  

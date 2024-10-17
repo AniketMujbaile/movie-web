@@ -1,26 +1,32 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { searchMovies, clearSearchedMovies } from '../redux/moviesSlice';
-import MovieCard from './MovieCard';  
-import Pagination from './Pagination';  
+import MovieCard from './MovieCard';
+import Pagination from './Pagination';
 
 const SearchedMoviePage = () => {
   const dispatch = useDispatch();
   const { searchedMovies, totalPages, status, error } = useSelector((state) => state.movies);
 
-  const query = new URLSearchParams(window.location.search).get('query');  
-  const page = 1;  
+  const query = new URLSearchParams(window.location.search).get('query');
+  
+  // State for handling the current page
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     if (query) {
-      dispatch(searchMovies({ query, page }));
+      dispatch(searchMovies({ query, page: currentPage }));
     }
 
     // Clean up function to reset searched movies
     return () => {
       dispatch(clearSearchedMovies());
     };
-  }, [dispatch, query, page]);
+  }, [dispatch, query, currentPage]);  
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);  
+  };
 
   if (status === 'loading') {
     return <div>Loading...</div>;
@@ -42,9 +48,18 @@ const SearchedMoviePage = () => {
           <div>No results found</div>
         )}
       </div>
-      {totalPages > 1 && <Pagination totalPages={totalPages} currentPage={page} />} {/* Implement Pagination */}
+      
+      {totalPages > 1 && (
+        <Pagination 
+          totalPages={totalPages} 
+          currentPage={currentPage} 
+          onPageChange={handlePageChange}  
+        />
+      )}
     </div>
   );
 };
 
 export default SearchedMoviePage;
+
+ 

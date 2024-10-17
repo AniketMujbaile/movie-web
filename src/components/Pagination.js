@@ -1,6 +1,7 @@
 import React from 'react';
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
+
   return (
     <div className="flex justify-center mt-8">
       <button

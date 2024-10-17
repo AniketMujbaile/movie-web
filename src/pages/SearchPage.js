@@ -23,7 +23,7 @@ const SearchPage = () => {
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
     window.scrollTo(0, 0);
-    navigate(`?query=${query}&page=${newPage}`);  
+    navigate(`?query=${query}&page=${newPage}`);
   };
 
   if (status === 'loading') {
